@@ -1,0 +1,98 @@
+import streamlit as st
+from streamlit_webrtc import webrtc_streamer  # Thư viện hỗ trợ video/camera
+
+# Thiết lập cấu hình trang
+st.set_page_config(page_title="Sign Language Translator", page_icon="📷", layout="wide")
+
+# Custom CSS cho giao diện
+st.markdown("""
+    <style>
+        .navbar {
+            background-color: #2563eb;
+            padding: 15px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .navbar a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+        .section {
+            margin: 20px 0;
+        }
+        .camera-section {
+            border: 2px dashed #90A4AE;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #546E7A;
+        }
+        .output-section {
+            background-color: #2563eb;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# Navbar
+st.markdown("""
+    <div class="navbar">
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </div>
+""", unsafe_allow_html=True)
+
+# Header Section
+st.markdown("""
+    <div style="text-align: center; background-color: #E3F2FD; padding: 30px; margin: 20px 0; border-radius: 10px;">
+        <h1 style="color: #4b71ff;">Sign Language Translator</h1>
+        <p style="font-size: 18px; color: #546E7A;">Breaking barriers in communication</p>
+    </div>
+""", unsafe_allow_html=True)
+
+# Tabs
+tab1, tab2 = st.tabs(["Sign to Language", "Language to Sign"])
+
+# Tab 1: Input dạng video
+with tab1:
+    st.markdown("""
+        <div class="camera-section">
+            <h3>Live Camera Input</h3>
+            <p>Use your camera to translate sign language to text.</p>
+        </div>
+    """, unsafe_allow_html=True)
+    # WebRTC for video input
+    webrtc_streamer(key="example", video_frame_callback=None)
+
+# Tab 2: Input dạng text
+with tab2:
+    st.markdown("""
+        <div style="border: 2px dashed #B0BEC5; padding: 50px; text-align: center; color: #4b71ff; border-radius: 10px;">
+            <p style="font-size: 16px; color: #546E7A;">Type or paste your text to see the sign translation</p>
+            <i style="font-size: 50px; color: #90A4AE;">✏️</i>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Output Section
+st.markdown("""
+    <div class="section">
+        <h3>Translated Text</h3>
+    </div>
+""", unsafe_allow_html=True)
+
+# Output hiển thị văn bản từ model
+output_text = "Translation will appear here..."  # Placeholder cho đầu ra
+st.markdown(f"""
+    <div class="output-section">
+        <p style="font-size: 16px;">{output_text}</p>
+    </div>
+""", unsafe_allow_html=True)
