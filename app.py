@@ -83,11 +83,12 @@ st.markdown("""
             color: #546E7A; /* Màu chữ đồng nhất */
         }
         .output-section {
-            background-color: #2563eb;
-            color: white;
+            background-color: #d3d3d3; /* Màu nền xám nhạt */
+            color: black; /* Màu chữ đen */
             padding: 20px;
             border-radius: 10px;
         }
+
     </style>
 """, unsafe_allow_html=True)
 
