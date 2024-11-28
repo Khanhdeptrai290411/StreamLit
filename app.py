@@ -137,8 +137,10 @@ with tab1:
         if not cap.isOpened():
             st.error("Cannot access camera.")
         else:
-            word = ""  # Chuỗi để lưu kết quả nhận diện
+            text, word = "", ""
+            count_same_frame = 0
             padding = 80
+            frame_count = 00
 
             while toggle_camera:
                 ret, frame = cap.read()
@@ -148,7 +150,9 @@ with tab1:
 
                 frame = cv2.flip(frame, 1)  # Lật ngang hình ảnh
 
-                # Nhận diện bằng YOLOv5
+                frame_count += 1
+                if frame_count % 5 != 0:  # Skip frame if it's not every 5th frame
+                     continue
                 try:
                     results = yolo_model(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                     detections = results.pandas().xyxy[0]
@@ -167,20 +171,37 @@ with tab1:
 
                         # Nhận diện bằng model Keras
                         try:
+                            
                             resized_frame = cv2.resize(cropped_hand, (cf.IMAGE_SIZE, cf.IMAGE_SIZE))
                             reshaped_frame = np.array(resized_frame).reshape((1, cf.IMAGE_SIZE, cf.IMAGE_SIZE, 3))
                             frame_for_model = reshaped_frame / 255.0
+                            old_text = text
                             prediction = sign_model.predict(frame_for_model)
+                            prediction_probability = prediction[0, prediction.argmax()]
                             text = cf.CLASSES[prediction.argmax()]
-                            if text != "nothing":  # Loại bỏ các kết quả không hợp lệ
-                                word += text  # Thêm chữ vào kết quả
+                            
                         except Exception as e:
+                            prediction_probability = 0.0
+                            text = "nothing"
                             st.error(f"Keras prediction error: {e}")
                             continue
 
                         # Vẽ bounding box
-                        cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-                        cv2.putText(frame, f"{text}", (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+                        if text == 'space':
+                            text = '_'
+                        if text != 'nothing':
+                             if old_text == text:
+                                count_same_frame += 1
+                             else:
+                               count_same_frame = 0
+
+                             if count_same_frame > 2:
+                                word += text
+                                count_same_frame = 0
+
+                        if prediction_probability > 0.5:
+                            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+                            cv2.putText(frame, f"{text}", (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
                 # Hiển thị khung hình camera
                 FRAME_WINDOW.image(frame, channels="BGR")
@@ -220,7 +241,7 @@ with tab1:
         """, unsafe_allow_html=True)
 
 
-    # **Đặt tiêu đề phía trên khung dịch**
+    # *Đặt tiêu đề phía trên khung dịch*
     
 
 
@@ -235,5 +256,3 @@ with tab2:
             <i style="font-size: 50px; color: #90A4AE;">✏️</i>
         </div>
     """, unsafe_allow_html=True)
-
-
